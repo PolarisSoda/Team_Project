@@ -48,4 +48,23 @@ public class Board {
 			}
 		}
 	}
+	//실제로 저장된 정보와, GUI간의 정보전달을 위한 Thread.
+	//여기서 각 GameObject의 정보를 토대로 GUI의 정보를 수정함.
+	//label의 visible을 바꿔가면서 사라졌다 없앴다 하는 방식이 괜찮을 듯?
+	//Bullet같은 경우는 각자가 Thread가 돌아갈텐데, 너무 많다 싶으면 개수를 바꾸겠습니다.
+	class TowerGUI implements Runnable {
+		public void run() {
+			
+		}
+	}
+	class EnemyGUI implements Runnable {
+		public void run() {
+			
+		}
+	}
+	class BulletGUI implements Runnable {
+		public void run() {
+			
+		}
+	}
 }

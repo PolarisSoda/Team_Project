@@ -21,13 +21,13 @@ class Enemy extends GameObject {
 	}
 	public void run() {
 		try {
-			/*
-			 * pseudo-code
-			 * while(is_ended == false)
-			 * 	move()
-			 *  sleep()
-			 */
-			Thread.sleep(30);
+			while(Board.start_phase == true) {
+				if(this.dead == true)
+					break;
+				this.move();
+				Thread.sleep(30);
+			}
+			
 		} catch(InterruptedException e) {
 			e.printStackTrace();
 		}
