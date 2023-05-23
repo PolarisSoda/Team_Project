@@ -11,8 +11,16 @@ class Frame extends JFrame {
 	JPanel Controlpanel = new JPanel();
 	JPanel Infopanel = new JPanel();
 	JPanel Queuepanel = new JPanel();
-	JLabel tgui[][] = new JLabel[10][5];
+	
 	JButton Summon = new JButton("Summon");
+	JButton Upgrade = new JButton("Upgrade");
+	JButton Battle = new JButton("Battle");
+	
+	JLabel tgui[][] = new JLabel[10][5];
+	JLabel GoldMsg = new JLabel();
+	JLabel ErrorMsg = new JLabel();
+	JLabel UpgradeMsg = new JLabel();
+	
 	void Init() {
 		for(int i=0; i<5; i++) {
 			for(int j=0; j<10; j++) {
@@ -27,7 +35,6 @@ class Frame extends JFrame {
 			}
 		}
 	}
-	
 	Frame() {
 		this.setTitle("Defense");
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -42,18 +49,17 @@ class Frame extends JFrame {
 		Gamepanel.setLocation(10,10);
 		Gamepanel.setSize(1000,500);
 		
-		
 		Summon.setLocation(10,10);
 		Summon.setSize(100,50);
 		Summon.addActionListener(new SummonListener());
 		
-		JButton Upgrade = new JButton("Upgrade");
 		Upgrade.setLocation(10,70);
 		Upgrade.setSize(100,50);
+		Upgrade.addActionListener(new UpgradeListener());
 		
-		JButton Battle = new JButton("Battle");
 		Battle.setLocation(10,130);
 		Battle.setSize(100,50);
+		Battle.addActionListener(new BattleListener());
 		
 		Controlpanel.setLayout(null);
 		Controlpanel.setBackground(new Color(0,200,0,255));
@@ -63,10 +69,19 @@ class Frame extends JFrame {
 		Controlpanel.add(Upgrade);
 		Controlpanel.add(Battle);
 		
+		ErrorMsg.setLocation(10,10);
+		ErrorMsg.setSize(150,30);
+		
+		GoldMsg.setLocation(10,50);
+		GoldMsg.setSize(150,30);
+		GoldMsg.setText("Gold : " + String.valueOf(Board.gold));
+		
 		Infopanel.setLayout(null);
-		Infopanel.setBackground(new Color(0,0,200,255));
+		Infopanel.setBackground(new Color(180,200,200,255));
 		Infopanel.setLocation(1020,320);
 		Infopanel.setSize(200,300);
+		Infopanel.add(ErrorMsg);
+		Infopanel.add(GoldMsg);
 		
 		Queuepanel.setLayout(null);
 		Queuepanel.setBackground(new Color(0,200,200,255));
@@ -87,6 +102,12 @@ class Frame extends JFrame {
 	}
 	class SummonListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
+			if(Board.gold < 10) {
+				ErrorMsg.setText("Not Enought Gold!");
+				return ;
+			}
+			Board.gold -= 10;
+			GoldMsg.setText("Gold : " + String.valueOf(Board.gold));
 			Random rd = new Random();
 			ImageIcon original = new ImageIcon("src/images/tanks_1.png");
 			Image img = original.getImage();
@@ -95,19 +116,26 @@ class Frame extends JFrame {
 			int x = rd.nextInt(10);
 			int y = rd.nextInt(5);
 			tgui[x][y].setIcon(newer);
-			tgui[x][y].setText(null);
 		}
 	}
-	class UpgradeListner implements ActionListener {
+	class UpgradeListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-			Board.upgrade++;
-			Board.gold -= 70;
+			if(Board.gold >= 70) {
+				Board.upgrade++;
+				Board.gold -= 70;
+				GoldMsg.setText("Gold : " + String.valueOf(Board.gold));
+			} else {
+				ErrorMsg.setText("Not Enough Gold");
+			}
+			
 		}
 	}
-	class BattleListner implements ActionListener {
+	class BattleListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			if(Board.start_phase == false)
 				Board.start_phase = true;
+			else
+				ErrorMsg.setText("Battle Already Begun!");
 		}
 	}
 }

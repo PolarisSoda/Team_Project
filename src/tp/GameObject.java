@@ -1,23 +1,22 @@
 package tp;
 
-import javax.swing.*;
-import javax.swing.event.*;
-import java.awt.*;
-import java.awt.event.*;
-
-class GameObject {
-	int x;
-	int y;
-	String src = null;
+class GameObject implements Runnable {
+	double x;
+	double y;
+	public void run() {
+		return;
+	}
 }
 
 class Bullet extends GameObject {
-	
+	int velocity;
 }
 class Tower extends GameObject {
+	int atk;
+	int reload;
 	
 }
 class Enemy extends GameObject {
-	
+	int velocity;
 }
 
