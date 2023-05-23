@@ -8,11 +8,11 @@ public class Board {
 	static int round = 0;
 	static int EnemyRemained = 15;
 	static int EnemyExist = 0;
-	static boolean start_phase = false;
+	static boolean start_phase = false; //전투페이즈 준비페이즈 구분.
 	static ArrayList<Enemy> enemylist = new ArrayList<>(); //적 저장공간
 	static ArrayList<Bullet> bulletlist = new ArrayList<>(); //탄알 저장공간
-	
 	boolean gameover = false;
+	
 	Tower towerlist[][] = new Tower[10][5];
 	
 	

@@ -16,12 +16,16 @@ class Frame extends JFrame {
 	JButton Upgrade = new JButton("Upgrade"); //업그레이드
 	JButton Battle = new JButton("Battle"); //페이즈시작(적 생성하겠단뜻)
 	
-	JLabel tgui[][] = new JLabel[10][5]; //포탑 표시하는 라벨
 	JLabel GoldMsg = new JLabel(); //돈 표시기
 	JLabel ErrorMsg = new JLabel(); //에러 메시지
 	JLabel UpgradeMsg = new JLabel(); //업그레이드 표시기
 	
+	JLabel tgui[][] = new JLabel[10][5]; //포탑 표시하는 라벨
+	JLabel egui[] = new JLabel[15]; //적 표시 라벨
+	JLabel bgui[] = new JLabel[10001]; //총알 표시 라벨
+	
 	void Init() {
+		//공간 test용. 나중에 바뀘 ㅜ있음
 		for(int i=0; i<5; i++) {
 			for(int j=0; j<10; j++) {
 				tgui[j][i] = new JLabel("Test");
