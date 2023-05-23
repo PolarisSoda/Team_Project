@@ -5,4 +5,4 @@ import javax.swing.event.*;
 import java.awt.*;
 import java.awt.event.*;
 
-//i think idon't need it
+//아직은 필요없음.

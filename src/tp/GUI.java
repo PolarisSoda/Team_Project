@@ -7,26 +7,26 @@ import java.awt.event.*;
 import java.util.*;
 
 class Frame extends JFrame {
-	JPanel Gamepanel = new JPanel();
-	JPanel Controlpanel = new JPanel();
-	JPanel Infopanel = new JPanel();
-	JPanel Queuepanel = new JPanel();
+	JPanel Gamepanel = new JPanel(); //게임 패널
+	JPanel Controlpanel = new JPanel(); //컨트롤 패널, 버튼 포함하는 곳.
+	JPanel Infopanel = new JPanel(); //인포 패널, gold든 목숨이든 에러메시지든 넣는 곳.
+	JPanel Queuepanel = new JPanel(); //??
 	
-	JButton Summon = new JButton("Summon");
-	JButton Upgrade = new JButton("Upgrade");
-	JButton Battle = new JButton("Battle");
+	JButton Summon = new JButton("Summon"); //소환
+	JButton Upgrade = new JButton("Upgrade"); //업그레이드
+	JButton Battle = new JButton("Battle"); //페이즈시작(적 생성하겠단뜻)
 	
-	JLabel tgui[][] = new JLabel[10][5];
-	JLabel GoldMsg = new JLabel();
-	JLabel ErrorMsg = new JLabel();
-	JLabel UpgradeMsg = new JLabel();
+	JLabel tgui[][] = new JLabel[10][5]; //포탑 표시하는 라벨
+	JLabel GoldMsg = new JLabel(); //돈 표시기
+	JLabel ErrorMsg = new JLabel(); //에러 메시지
+	JLabel UpgradeMsg = new JLabel(); //업그레이드 표시기
 	
 	void Init() {
 		for(int i=0; i<5; i++) {
 			for(int j=0; j<10; j++) {
 				tgui[j][i] = new JLabel("Test");
-				tgui[j][i].setSize(100,100);
-				tgui[j][i].setLocation(j*100,i*100);
+				tgui[j][i].setSize(80,80);
+				tgui[j][i].setLocation(j*100+10,i*100+10);
 				tgui[j][i].setOpaque(true);
 				tgui[j][i].setBackground(new Color(255-i*5,255-j*5,0,255));
 				tgui[j][i].setHorizontalAlignment(JLabel.CENTER);
