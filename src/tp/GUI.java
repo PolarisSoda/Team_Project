@@ -25,7 +25,6 @@ class Frame extends JFrame {
 	JLabel bgui[] = new JLabel[10001]; //총알 표시 라벨
 	
 	void Init() {
-		//공간 test용. 나중에 바뀘 ㅜ있음
 		for(int i=0; i<5; i++) {
 			for(int j=0; j<10; j++) {
 				ImageIcon original = new ImageIcon("src/images/tanks_1.png");
@@ -35,12 +34,21 @@ class Frame extends JFrame {
 				tgui[j][i] = new JLabel(newer);
 				tgui[j][i].setSize(90,90);
 				tgui[j][i].setLocation(j*100+5,i*100+5);
-				//tgui[j][i].setOpaque(true);
-				//tgui[j][i].setBackground(new Color(255-i*5,255-j*5,0,255));
-				tgui[j][i].setHorizontalAlignment(JLabel.CENTER);
-				tgui[j][i].setVisible(true);
+				tgui[j][i].setVisible(false);
 				Gamepanel.add(tgui[j][i]);
 			}
+		}
+		
+		for(int i=0; i<15; i++) {
+			ImageIcon original = new ImageIcon("src/images/Enemy.png");
+			Image img = original.getImage();
+			Image changeImg = img.getScaledInstance(90,90,Image.SCALE_SMOOTH);
+			ImageIcon newer = new ImageIcon(changeImg);
+			egui[i] = new JLabel(newer);
+			egui[i].setSize(90,90);
+			egui[i].setLocation(5,405);
+			egui[i].setVisible(false);
+			Gamepanel.add(egui[i]);
 		}
 	}
 	Frame() {

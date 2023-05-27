@@ -8,6 +8,7 @@ import java.awt.event.*;
 
 public class Board {
 	Frame frame = new Frame(); //GUI
+	
 	static int upgrade = 0; //upgrade 계수 어떻게 할지는 글쎄
 	static int gold = 100; //얻은 돈
 	static int round = 0; //라운드, 라운드 기반으로 적이 강해지겠죠
@@ -17,144 +18,148 @@ public class Board {
 	
 	static Vector<Enemy> enemylist = new Vector<Enemy>();
 	static Vector<Bullet> bulletlist = new Vector<Bullet>();
-	//static List<Bullet> bulletlist = Collections.synchronizedList(new ArrayList<Bullet>());
-	//static ArrayList<Bullet> bulletlist = new ArrayList<>(); //탄알 저장공간
 	static Tower towerlist[][] = new Tower[10][15]; //포탑 저장공간
 	static char[][] Road = new char[][] {
 		{' ','X','X','X',' ','X','X','X','X','X'},
 		{' ','X',' ','X',' ','X',' ',' ',' ','X'},
 		{' ','X',' ','X',' ','X',' ','X','X','X'},
-		{'X','X',' ','X',' ','X',' ','X',' ',' '},
-		{' ',' ',' ','X','X','X',' ','X','X','X'}
+		{' ','X',' ','X',' ','X',' ','X',' ',' '},
+		{'X','X',' ','X','X','X',' ','X','X','X'}
 	};
 	
-	boolean gameover = false;
+	boolean game_over = false;
+	
+	Thread Thread_Summon = new Thread(new SummonSchedular()); //적을 시간에 따라 내보내는 스레드
+	Thread Thread_RunTower = new Thread(new RunTower()); //타워의 위치 조정,회전,사격 ETC...
+	Thread Thread_RunEnemy = new Thread(new RunEnemy()); //적 이동, 체력과 사망여부 판정 등등
+	Thread Thread_RunBullet = new Thread(new RunBullet()); //이동, Hit여부 체크 등등
+	Thread Thread_GUITower = new Thread(new GUITower()); //Tower의 정보를 GUI에 반영
+	Thread Thread_GUIEnemy = new Thread(new GUIEnemy()); //Enemy의 정보를 GUI에 반영
+	Thread Thread_GUIBullet = new Thread(new GUIBullet()); //Bullet의 정보를 GUI에 반영
+	Thread Thread_GetSignal = new Thread(new GetSignal()); //시그널을 받아옵니다.
+	
 	Board() {
 		for(int i=0; i<5; i++) {
 			for(int j=0; j<10; j++) {
 				towerlist[j][i] = new Tower(100*j+5,100*i+5);
 			}
 		}
+		for(int i=0; i<15; i++) {
+			enemylist.add(new Enemy());
+		}
+		for(int i=0; i<1000; i++) {
+			
+		}
+		Thread_GetSignal.start();
 	}
 	void game_start() {
-		RunTower T_Runnable[][] = new RunTower[10][5];
-		Thread TowerThread[][] = new Thread[10][5];
-		
-		RunEnemy E_Runnable[] = new RunEnemy[15];
-		Thread EnemyThread[] = new Thread[15];
-		
-		Runnable Checker = new PhaseChecker();
-		Runnable Phase = new SummonSchedule();
-		
-		Thread CheckerThread = new Thread(Checker);
-		CheckerThread.start();
-		
-		for(int i=0; i<5; i++) {
-			for(int j=0; j<10; j++) {
-				T_Runnable[j][i] = new RunTower(j,i);
-				if(Board.towerlist[j][i].visible == true) {
-					TowerThread[j][i] = new Thread(T_Runnable[j][i]);
-					TowerThread[j][i].start();
-				}
-			}
-		}
-		
-		for(int i=0; i<15; i++) {
-			EnemyThread[i] = new Thread(E_Runnable[i]);
-			EnemyThread[i].start();
-		}
-		
-		Thread PhaseThread = new Thread(Phase);
-		PhaseThread.start(); //적 소환 스케쥴러 스레드
+		Thread_Summon.start();
+		Thread_RunTower.start();
+		Thread_RunEnemy.start();
+		Thread_RunBullet.start();
+		Thread_GUITower.start();
+		Thread_GUIEnemy.start();
+		Thread_GUIBullet.start();
  	}
-	class PhaseChecker implements Runnable {
-		//페이즈가 돌아가는동안 페이즈가 끝났는지 확인하는곳.
+	void Interrupt_Object() {
+		Thread_RunTower.interrupt();
+		Thread_RunEnemy.interrupt();
+		Thread_RunBullet.interrupt();
+		Thread_GUITower.interrupt();
+		Thread_GUIEnemy.interrupt();
+		Thread_GUIBullet.interrupt();
+		Thread_GetSignal.start();
+	}
+	
+	class GetSignal implements Runnable {
 		public void run() {
-			/*
-			 * pseudo
-			 * if(remained == 0 && exist == 0)
-			 * 	Start_phase = true;
-			 *  interrupt all thread except for main.
-			 *  and set remaind = 15;
-			 *	
-			 */
+			try {
+				while(Thread.interrupted() == false) {
+					if(Board.start_phase == true)
+						break;
+					Thread.sleep(5);
+				}
+				System.out.println("i'm working");
+				game_start();
+			} catch(InterruptedException e) {}
 		}
 	}
-	class SummonSchedule implements Runnable {
-		//적을 일정한 시간에 따라 만듬.
+	class SummonSchedular implements Runnable {
 		public void run() {
 			try {
 				for(int i=0; i<15; i++) {
-					Enemy temp = Board.enemylist.elementAt(i);
-					
-					Thread.sleep(30);
+					Board.enemylist.elementAt(i).visible = true;
+					Board.EnemyRemained--;
+					Board.EnemyExist++;
+					Thread.sleep(2000);
 				}
-			} catch(InterruptedException e) {
-				e.printStackTrace();
-			}
+				System.out.println("Summon Finished");
+			} catch(InterruptedException e) {}
 		}
-	}
-	//실제로 저장된 정보와, GUI간의 정보전달을 위한 Thread.
-	//여기서 각 GameObject의 정보를 토대로 GUI의 정보를 수정함.
-	//label의 visible을 바꿔가면서 사라졌다 없앴다 하는 방식이 괜찮을 듯?
-	//Bullet같은 경우는 각자가 Thread가 돌아갈텐데, 너무 많다 싶으면 개수를 바꾸겠습니다.
+	} 
 	class RunTower implements Runnable {
-		int x,y;
-		RunTower(int x,int y) {
-			this.x = x;
-			this.y = y;
-		}
-		public void run() {
-			try {
-				while(Thread.interrupted() == false) {
-					//target
-					Thread.sleep(30);
-				}
-			} catch(InterruptedException e) {
-				
-			}
-		}
-	}
-	
-	class RunEnemy implements Runnable {
-		int x,y;
-		RunEnemy() {
-			this.x = -1;
-			this.y = -1;
-		}
-		public void run() {
-			try {
-				while(Thread.interrupted() == false) {
-					//target
-					Thread.sleep(30);
-				}
-			} catch(InterruptedException e) {
-				
-			}
-		}
-	}
-	class TowerGUI implements Runnable {
-		public void run() {
-			try {
-				while(Thread.interrupted() == false) {
-					for(int i=0; i<5; i++) {
-						for(int j=0; j<10; j++) {
-							
-						}
-					}
-					Thread.sleep(10);
-				}
-			} catch(InterruptedException e) {
-				
-			}
-		}
-	}
-	class EnemyGUI implements Runnable {
 		public void run() {
 			
 		}
 	}
-	class BulletGUI implements Runnable {
+	
+	class RunEnemy implements Runnable {
+		public void run() {
+			System.out.println("RunEnemy_Thread Started");
+			try {
+				while(Thread.interrupted() == false) {
+					for(int i=0; i<15; i++) {
+						Enemy temp = Board.enemylist.elementAt(i);
+						if(temp.visible == false)
+							continue;
+						temp.move();
+					}
+					Thread.sleep(100);
+				}
+				System.out.println("RunEnemy_Thread Interrupted");
+			} catch(InterruptedException e) {}
+		}
+	}
+	
+	class RunBullet implements Runnable {
+		public void run() {
+			
+		}
+	}
+	class GUITower implements Runnable {
+		public void run() {
+			try {
+				Thread.sleep(10);
+			} catch(InterruptedException e) {
+				
+			}
+		}
+	}
+	class GUIEnemy implements Runnable {
+		public void run() {
+			try {
+				while(Thread.interrupted() == false) {
+					for(int i=0; i<15; i++) {
+						Enemy temp = Board.enemylist.elementAt(i);
+						if(temp.visible == false) {
+							if(frame.egui[i].isVisible() == false)
+								continue;
+							else
+								frame.egui[i].setVisible(false);
+						} else {
+							if(frame.egui[i].isVisible() == false)
+								frame.egui[i].setVisible(true);
+							frame.egui[i].setLocation(temp.x,temp.y);
+						}
+					}
+					Thread.sleep(50);
+				}
+			} catch(InterruptedException e) {
+				
+			}
+		}
+	}
+	class GUIBullet implements Runnable {
 		public void run() {
 			
 		}

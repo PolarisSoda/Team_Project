@@ -2,9 +2,9 @@ package tp;
 
 import java.util.*;
 
-class GameObject implements Runnable {
-	double x; //현재 x좌표
-	double y; //현재 y좌표
+class GameObject {
+	int x; //현재 x좌표
+	int y; //현재 y좌표
 	boolean visible; //GUI에서 표시되는지?
 	public void run() {
 		return;
@@ -12,34 +12,26 @@ class GameObject implements Runnable {
 }
 
 class Enemy extends GameObject {
-	double velocity = 1;
-	int health = 1000;
-	void move() {
-		//make enemy along the road
-		//you should make path along the ROAD.
-		//It changes x and y
+	double velocity = 2;
+	int health;
+	
+	Enemy() {
+		this.health = 1000 + Board.round*100;
+		this.x = 5;
+		this.y = 405;
+		this.visible = false;
 	}
-	public void run() {
-		try {
-			while(Board.start_phase == true) {
-				if(this.visible == true)
-					break;
-				this.move();
-				Thread.sleep(30);
-			}
-			
-		} catch(InterruptedException e) {
-			e.printStackTrace();
-		}
+	void move() {
+		this.x += 2;
 	}
 }
 
 class Bullet extends GameObject {
 	int velocity;
-	double objectx;
-	double objecty;
+	int objectx;
+	int objecty;
 	double direction; //rad형태로 바뀌겠죠.
-	Bullet(double x,double y,double objectx,double objecty) {
+	Bullet(int x,int y,int objectx,int objecty) {
 		this.x = x;
 		this.y = y;
 		this.objectx = objectx;
@@ -58,27 +50,13 @@ class Bullet extends GameObject {
 		
 		return false;
 	}
-	public void run() {
-		try {
-			/**
-			 * pseudo-code
-			 * while(ishit == false)
-			 *  move()
-			 *  sleep()
-			 *
-			 */
-			Thread.sleep(30);
-		} catch(InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
 }
 class Tower extends GameObject {
 	int atk = 10;//체력은 얼마나 깎을건지?
 	int reload = 5; //몇 Cycle마다 한번 쏘는지?
 	int target = -1; //ArrayList의 몇번째 Enemy를 쏠건지?
 
-	Tower(double x,double y) {
+	Tower(int x,int y) {
 		this.x = x;
 		this.y = y;
 		this.visible = false;
@@ -97,8 +75,8 @@ class Tower extends GameObject {
 	}
 	void shoot(int cnt) {
 		Enemy tg = Board.enemylist.get(target);
-		double ox = tg.x;
-		double oy = tg.y;
+		int ox = tg.x;
+		int oy = tg.y;
 		Bullet temp = new Bullet(this.x,this.y,ox,oy);
 		Board.bulletlist.add(temp);
 	}
@@ -107,26 +85,6 @@ class Tower extends GameObject {
 		//중간중간마다 없어질수도 있으니 try catch로 exception을 무조건 잡아야 됨.
 		//ArrayList에 접근하는 것이니, 대충 그 exception좀 찾아주세요.
 		return true;
-	}
-	public void run() {
-		try {
-			int cycle = 0;
-			while(Board.start_phase == true) {
-				if(cycle%this.reload == 0) {
-					if(is_valid(target) == true) {
-						//???
-					} else {
-						this.setTarget();
-					}
-					this.shoot(target); //try-catch Exception 필요.
-				}
-				Thread.sleep(30); //적절한 fps를 설정하시오. 전체적인 fps를 말하는것이다. 재장전속도말고.
-				//재장전속도랑 포탑이 움직이는 속도 같아지면 안되니까.
-				//재장전속도는, parameter i를 추가해서 i%3 == 0 같은식으로 3 Cycle마다 한번쏘는걸로 구현 가능. 
-			}
-		} catch(InterruptedException e) {
-			e.printStackTrace();
-		}
 	}
 }
 
