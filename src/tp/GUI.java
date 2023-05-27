@@ -28,11 +28,15 @@ class Frame extends JFrame {
 		//공간 test용. 나중에 바뀘 ㅜ있음
 		for(int i=0; i<5; i++) {
 			for(int j=0; j<10; j++) {
-				tgui[j][i] = new JLabel("Test");
-				tgui[j][i].setSize(80,80);
-				tgui[j][i].setLocation(j*100+10,i*100+10);
-				tgui[j][i].setOpaque(true);
-				tgui[j][i].setBackground(new Color(255-i*5,255-j*5,0,255));
+				ImageIcon original = new ImageIcon("src/images/tanks_1.png");
+				Image img = original.getImage();
+				Image changeImg = img.getScaledInstance(90,90,Image.SCALE_SMOOTH);
+				ImageIcon newer = new ImageIcon(changeImg);
+				tgui[j][i] = new JLabel(newer);
+				tgui[j][i].setSize(90,90);
+				tgui[j][i].setLocation(j*100+5,i*100+5);
+				//tgui[j][i].setOpaque(true);
+				//tgui[j][i].setBackground(new Color(255-i*5,255-j*5,0,255));
 				tgui[j][i].setHorizontalAlignment(JLabel.CENTER);
 				tgui[j][i].setVisible(true);
 				Gamepanel.add(tgui[j][i]);
@@ -43,9 +47,9 @@ class Frame extends JFrame {
 		this.setTitle("Defense");
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.setResizable(false);
-		this.setLocation(0,0);
 		this.setSize(1280,720);
 		this.setLayout(null);
+		
 		Container contentPane = this.getContentPane();
 		
 		Gamepanel.setLayout(null);
@@ -106,6 +110,10 @@ class Frame extends JFrame {
 	}
 	class SummonListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
+			if(Board.start_phase == true) {
+				ErrorMsg.setText("You can't summon while fight!");
+				return ;
+			}
 			if(Board.gold < 10) {
 				ErrorMsg.setText("Not Enought Gold!");
 				return ;
@@ -113,13 +121,12 @@ class Frame extends JFrame {
 			Board.gold -= 10;
 			GoldMsg.setText("Gold : " + String.valueOf(Board.gold));
 			Random rd = new Random();
-			ImageIcon original = new ImageIcon("src/images/tanks_1.png");
-			Image img = original.getImage();
-			Image changeImg = img.getScaledInstance(100,100,Image.SCALE_SMOOTH);
-			ImageIcon newer = new ImageIcon(changeImg);
+			
 			int x = rd.nextInt(10);
 			int y = rd.nextInt(5);
-			tgui[x][y].setIcon(newer);
+			tgui[x][y].setVisible(true);
+			Board.towerlist[x][y].visible = true;
+			
 		}
 	}
 	class UpgradeListener implements ActionListener {

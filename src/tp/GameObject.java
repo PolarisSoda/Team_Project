@@ -3,17 +3,17 @@ package tp;
 import java.util.*;
 
 class GameObject implements Runnable {
-	double x;
-	double y;
+	double x; //현재 x좌표
+	double y; //현재 y좌표
+	boolean visible; //GUI에서 표시되는지?
 	public void run() {
 		return;
 	}
 }
 
 class Enemy extends GameObject {
-	double velocity = 0.1;
+	double velocity = 1;
 	int health = 1000;
-	boolean dead = false;
 	void move() {
 		//make enemy along the road
 		//you should make path along the ROAD.
@@ -22,7 +22,7 @@ class Enemy extends GameObject {
 	public void run() {
 		try {
 			while(Board.start_phase == true) {
-				if(this.dead == true)
+				if(this.visible == true)
 					break;
 				this.move();
 				Thread.sleep(30);
@@ -74,18 +74,16 @@ class Bullet extends GameObject {
 	}
 }
 class Tower extends GameObject {
-	int atk; //체력은 얼마나 깎을건지?
+	int atk = 10;//체력은 얼마나 깎을건지?
 	int reload = 5; //몇 Cycle마다 한번 쏘는지?
-	int target; //ArrayList의 몇번째 Enemy를 쏠건지? 이부분은 MultiThreading으로 인해 상당히 위험함.
-	boolean working = false;
-	
-	Tower() {
-		
-	}
+	int target = -1; //ArrayList의 몇번째 Enemy를 쏠건지?
+
 	Tower(double x,double y) {
 		this.x = x;
 		this.y = y;
+		this.visible = false;
 	}
+	
 	void setTarget() {
 		Random rd = new Random();
 		int location;
