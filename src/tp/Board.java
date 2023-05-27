@@ -114,7 +114,7 @@ public class Board {
 							continue;
 						temp.move();
 					}
-					Thread.sleep(100);
+					Thread.sleep(50);
 				}
 				System.out.println("RunEnemy_Thread Interrupted");
 			} catch(InterruptedException e) {}
@@ -152,7 +152,7 @@ public class Board {
 							frame.egui[i].setLocation(temp.x,temp.y);
 						}
 					}
-					Thread.sleep(50);
+					Thread.sleep(0);
 				}
 			} catch(InterruptedException e) {
 				
