@@ -52,7 +52,7 @@ class Frame extends JFrame {
 		
 		for(int i=0; i<1000; i++) {
 			bgui[i] = new JRotate("src/images/bullet.png",0);
-			bgui[i].setSize(90,90);
+			bgui[i].setSize(40,40);
 			bgui[i].setLocation(-100,-100);
 			bgui[i].setVisible(false);
 			Gamepanel.add(bgui[i]);
@@ -178,6 +178,21 @@ class JRotate extends JComponent {
 	
 	void SetRadian(double Radian) {
 		this.Radian = Radian;
+	}
+	
+	void Update(Graphics g) {
+		Graphics2D g2d = (Graphics2D)g.create();
+		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        
+        int x = getWidth() / 2;
+        int y = getHeight() / 2;
+        g2d.translate(x, y);
+
+        g2d.rotate(this.Radian);
+        g2d.translate(-x, -y);
+        g2d.drawImage(image, 0, 0, getWidth(), getHeight(), this);
+        g2d.dispose();
 	}
 	
 	protected void paintComponent(Graphics g) {
