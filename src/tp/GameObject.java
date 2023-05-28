@@ -57,14 +57,20 @@ class Tower extends GameObject {
 	int reload = 5; //몇 Cycle마다 한번 쏘는지?
 	int target = -1; //ArrayList의 몇번째 Enemy를 쏠건지?
 	double radian;
-	
+	int cnt = 0;
 	Tower(int x,int y) {
 		this.x = x;
 		this.y = y;
 		this.visible = false;
 	}
 	
+	void SetDirection() {
+		
+	}
 	
+	void Shoot() {
+		
+	}
 }
 
 

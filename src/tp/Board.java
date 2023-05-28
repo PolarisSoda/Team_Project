@@ -152,7 +152,7 @@ public class Board {
 							frame.egui[i].setLocation(temp.x,temp.y);
 						}
 					}
-					Thread.sleep(5);
+					Thread.sleep(0);
 				}
 			} catch(InterruptedException e) {
 			}
