@@ -25,7 +25,7 @@ class Frame extends JFrame {
 	
 	JRotate tgui[][] = new JRotate[10][5]; //포탑 표시하는 라벨
 	JLabel egui[] = new JLabel[15]; //적 표시 라벨
-	JRotate bgui[] = new JRotate[1001]; //총알 표시 라벨
+	JLabel bgui[] = new JLabel[1001]; //총알 표시 라벨
 	
 	void Init() {
 		for(int i=0; i<5; i++) {
@@ -51,7 +51,11 @@ class Frame extends JFrame {
 		}
 		
 		for(int i=0; i<1000; i++) {
-			bgui[i] = new JRotate("src/images/bullet.png",0);
+			ImageIcon original = new ImageIcon("src/images/bullet.png");
+			Image img = original.getImage();
+			Image changeImg = img.getScaledInstance(40,40,Image.SCALE_SMOOTH);
+			ImageIcon newer = new ImageIcon(changeImg);
+			bgui[i] = new JLabel(newer);
 			bgui[i].setSize(40,40);
 			bgui[i].setLocation(-100,-100);
 			bgui[i].setVisible(false);

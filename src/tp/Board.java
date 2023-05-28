@@ -232,8 +232,6 @@ public class Board {
 							if(frame.bgui[i].isVisible() == false)
 								frame.bgui[i].setVisible(true);
 							frame.bgui[i].setLocation(temp.x,temp.y);
-							frame.bgui[i].Radian = temp.direction;
-							frame.bgui[i].repaint();
 						}
 					}
 					Thread.sleep(0);

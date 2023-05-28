@@ -43,14 +43,19 @@ class Bullet extends GameObject {
 		this.velocity = 10;
 	}
 	void move() {
-		//Enemy와 비슷.
-		//어떤 목표를 찍으면 그 방향으로 쭉 나아가게 됨.
+		this.x += velocity;
 	}
 	boolean isHit() {
 		if(x<0 || x>1000 || y<0 || y>500)
 			return true;
 		for(int i=0; i<15; i++) {
-			
+			Enemy target = Board.enemylist.get(i);
+			if(target.visible == true) {
+				int x2 = (target.x - this.x)*(target.x - this.x);
+				int y2 = (target.y - this.y)*(target.y - this.y);
+				if(x2 + y2 <= 1600)
+					return true;
+			}
 		}
 		return false;
 	}
@@ -97,22 +102,14 @@ class Tower extends GameObject {
 			this.radian = rad;
 			for(int i=0; i<1000; i++) {
 				Bullet temp = Board.bulletlist.get(i);
-				if(temp.visible == false)
+				if(temp.visible == true)
 					continue;
+				System.out.println("Bullet : " + i + "created");
 				temp.visible = true;
 				temp.x = this.x;
 				temp.y = this.y;
 				temp.direction = rad;
-				//가용할 수 있는 bullet 찾기
-				/*
-				if(Board.bulletlist.elementAt(i).visible == false) {
-					Board.bulletlist.elementAt(i).visible = true;
-					Board.bulletlist.elementAt(i).x = this.x;
-					Board.bulletlist.elementAt(i).y = this.y;
-					
-					Board.bulletlist.elementAt(i).direction = rad;
-				}
-				*/
+				break;
 			}
 			cnt = 1;
 		} else {
