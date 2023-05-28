@@ -54,12 +54,12 @@ public class Board {
 	}
 	void game_start() {
 		Thread_Summon.start();
-		Thread_RunTower.start();
+		//Thread_RunTower.start();
 		Thread_RunEnemy.start();
-		Thread_RunBullet.start();
-		Thread_GUITower.start();
+		//Thread_RunBullet.start();
+		//Thread_GUITower.start();
 		Thread_GUIEnemy.start();
-		Thread_GUIBullet.start();
+		//Thread_GUIBullet.start();
  	}
 	void Interrupt_Object() {
 		Thread_RunTower.interrupt();
@@ -79,7 +79,7 @@ public class Board {
 						break;
 					Thread.sleep(5);
 				}
-				System.out.println("i'm working");
+				System.out.println("Battle Start!");
 				game_start();
 			} catch(InterruptedException e) {}
 		}
@@ -114,7 +114,7 @@ public class Board {
 							continue;
 						temp.move();
 					}
-					Thread.sleep(50);
+					Thread.sleep(20);
 				}
 				System.out.println("RunEnemy_Thread Interrupted");
 			} catch(InterruptedException e) {}
@@ -152,16 +152,22 @@ public class Board {
 							frame.egui[i].setLocation(temp.x,temp.y);
 						}
 					}
-					Thread.sleep(0);
+					Thread.sleep(5);
 				}
 			} catch(InterruptedException e) {
-				
 			}
 		}
 	}
 	class GUIBullet implements Runnable {
 		public void run() {
-			
+			try {
+				while(Thread.interrupted() == false) {
+					
+					Thread.sleep(5);
+				}
+			} catch(InterruptedException e) {
+				
+			}
 		}
 	}
 }

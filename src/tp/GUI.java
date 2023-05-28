@@ -20,18 +20,17 @@ class Frame extends JFrame {
 	JLabel ErrorMsg = new JLabel(); //에러 메시지
 	JLabel UpgradeMsg = new JLabel(); //업그레이드 표시기
 	
-	JLabel tgui[][] = new JLabel[10][5]; //포탑 표시하는 라벨
+	//JRotate는 회전가능함. 원래 있던 게 아니지만 JComponent 상속했으므로 왠만한건 같음.
+	//단지 각도가 Radian이라는걸 알아두자.
+	
+	JRotate tgui[][] = new JRotate[10][5]; //포탑 표시하는 라벨
 	JLabel egui[] = new JLabel[15]; //적 표시 라벨
-	JLabel bgui[] = new JLabel[10001]; //총알 표시 라벨
+	JRotate bgui[] = new JRotate[1001]; //총알 표시 라벨
 	
 	void Init() {
 		for(int i=0; i<5; i++) {
 			for(int j=0; j<10; j++) {
-				ImageIcon original = new ImageIcon("src/images/tanks_1.png");
-				Image img = original.getImage();
-				Image changeImg = img.getScaledInstance(90,90,Image.SCALE_SMOOTH);
-				ImageIcon newer = new ImageIcon(changeImg);
-				tgui[j][i] = new JLabel(newer);
+				tgui[j][i] = new JRotate("src/images/tanks_1.png",0);
 				tgui[j][i].setSize(90,90);
 				tgui[j][i].setLocation(j*100+5,i*100+5);
 				tgui[j][i].setVisible(false);
@@ -49,6 +48,14 @@ class Frame extends JFrame {
 			egui[i].setLocation(5,405);
 			egui[i].setVisible(false);
 			Gamepanel.add(egui[i]);
+		}
+		
+		for(int i=0; i<1000; i++) {
+			bgui[i] = new JRotate("src/images/bullet.png",0);
+			bgui[i].setSize(90,90);
+			bgui[i].setLocation(-100,-100);
+			bgui[i].setVisible(false);
+			Gamepanel.add(bgui[i]);
 		}
 	}
 	Frame() {
@@ -156,5 +163,35 @@ class Frame extends JFrame {
 			else
 				ErrorMsg.setText("Battle Already Begun!");
 		}
+	}
+}
+
+class JRotate extends JComponent {
+	Image image;
+	double Radian;
+	
+	JRotate(String imagepath,double RotateAngle) {
+		this.image = new ImageIcon(imagepath).getImage();
+		this.Radian = RotateAngle;
+		this.setVisible(false);
+	}
+	
+	void SetRadian(double Radian) {
+		this.Radian = Radian;
+	}
+	
+	protected void paintComponent(Graphics g) {
+		Graphics2D g2d = (Graphics2D)g.create();
+		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        
+        int x = getWidth() / 2;
+        int y = getHeight() / 2;
+        g2d.translate(x, y);
+
+        g2d.rotate(this.Radian);
+        g2d.translate(-x, -y);
+        g2d.drawImage(image, 0, 0, getWidth(), getHeight(), this);
+        g2d.dispose();
 	}
 }

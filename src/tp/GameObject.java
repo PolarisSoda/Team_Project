@@ -22,7 +22,8 @@ class Enemy extends GameObject {
 		this.visible = false;
 	}
 	void move() {
-		this.x += 2;
+		//길따라서 움직일 수 있게 구현 좀.
+		this.x += 1;
 	}
 }
 
@@ -52,40 +53,18 @@ class Bullet extends GameObject {
 	}
 }
 class Tower extends GameObject {
-	int atk = 10;//체력은 얼마나 깎을건지?
+	int atk = 50;//체력은 얼마나 깎을건지?
 	int reload = 5; //몇 Cycle마다 한번 쏘는지?
 	int target = -1; //ArrayList의 몇번째 Enemy를 쏠건지?
-
+	double radian;
+	
 	Tower(int x,int y) {
 		this.x = x;
 		this.y = y;
 		this.visible = false;
 	}
 	
-	void setTarget() {
-		Random rd = new Random();
-		int location;
-		while(true) {
-			location = rd.nextInt(Board.enemylist.size());
-			if(is_valid(location) == true) {
-				this.target = location;
-				break;
-			}
-		}
-	}
-	void shoot(int cnt) {
-		Enemy tg = Board.enemylist.get(target);
-		int ox = tg.x;
-		int oy = tg.y;
-		Bullet temp = new Bullet(this.x,this.y,ox,oy);
-		Board.bulletlist.add(temp);
-	}
-	boolean is_valid(int index) {
-		//실제로 가리키고 있는 적이 valid한가를 체크하는것이다.
-		//중간중간마다 없어질수도 있으니 try catch로 exception을 무조건 잡아야 됨.
-		//ArrayList에 접근하는 것이니, 대충 그 exception좀 찾아주세요.
-		return true;
-	}
+	
 }
 
 
