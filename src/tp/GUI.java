@@ -30,22 +30,19 @@ class Frame extends JFrame {
 	void Init() {
 		for(int i=0; i<5; i++) {
 			for(int j=0; j<10; j++) {
-				tgui[j][i] = new JRotate("src/images/tanks_1.png",0);
-				tgui[j][i].setSize(90,90);
-				tgui[j][i].setLocation(j*100+5,i*100+5);
+				tgui[j][i] = new JRotate("src/images/new_tank_4.png",0);
+				tgui[j][i].setSize(100,100);
+				tgui[j][i].setLocation(j*100,i*100);
 				tgui[j][i].setVisible(false);
 				Gamepanel.add(tgui[j][i]);
 			}
 		}
 		
 		for(int i=0; i<15; i++) {
-			ImageIcon original = new ImageIcon("src/images/Enemy.png");
-			Image img = original.getImage();
-			Image changeImg = img.getScaledInstance(90,90,Image.SCALE_SMOOTH);
-			ImageIcon newer = new ImageIcon(changeImg);
-			egui[i] = new JLabel(newer);
-			egui[i].setSize(90,90);
-			egui[i].setLocation(5,405);
+			ImageIcon original = new ImageIcon("src/images/new_enemy.png");
+			egui[i] = new JLabel(original);
+			egui[i].setSize(100,100);
+			egui[i].setLocation(0,400);
 			egui[i].setVisible(false);
 			Gamepanel.add(egui[i]);
 		}
@@ -182,21 +179,6 @@ class JRotate extends JComponent {
 	
 	void SetRadian(double Radian) {
 		this.Radian = Radian;
-	}
-	
-	void Update(Graphics g) {
-		Graphics2D g2d = (Graphics2D)g.create();
-		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-        
-        int x = getWidth() / 2;
-        int y = getHeight() / 2;
-        g2d.translate(x, y);
-
-        g2d.rotate(this.Radian);
-        g2d.translate(-x, -y);
-        g2d.drawImage(image, 0, 0, getWidth(), getHeight(), this);
-        g2d.dispose();
 	}
 	
 	protected void paintComponent(Graphics g) {

@@ -7,15 +7,15 @@ class GameObject {
 	int x; //현재 x좌표
 	int y; //현재 y좌표
 	boolean visible; //GUI에서 표시되는지?
-	public void run() {
-		return;
-	}
 }
 
 class Enemy extends GameObject {
 	int velocity = 2;
 	int health;
-	
+	int index = 0;
+	int size = 90;
+	int dx = (1000 - size)/9;
+	int dy = (500 - size)/4;
 	Enemy() {
 		this.health = 1000;
 		this.x = 5;
@@ -23,8 +23,16 @@ class Enemy extends GameObject {
 		this.visible = false;
 	}
 	void move() {
-		//길따라서 움직일 수 있게 구현 좀.
-		this.x += this.velocity;
+		if(index == 0) {
+			this.x = Board.road[0][1] * dx;
+			this.y = Board.road[0][0] * dy;
+			index = 1;
+		}
+		if(this.x == Board.road[this.index][1]*dx && this.y == Board.road[this.index][0]*dy) {
+			this.index +=1;
+		}
+		this.x += (Board.road[this.index][1] - Board.road[this.index-1][1]) * this.velocity;
+		this.y += (Board.road[this.index][0] - Board.road[this.index-1][0]) * this.velocity;
 	}
 	void Hit(int atk) {
 		this.health -= atk;

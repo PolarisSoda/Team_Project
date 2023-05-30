@@ -15,7 +15,12 @@ public class Board {
 	static int EnemyRemained = 15; //적은 총 15개만 나오는걸로해보죠..
 	static int EnemyExist = 0; //화면에 적 존재 여부.
 	static boolean start_phase = false; //전투페이즈 준비페이즈 구분.
-	
+	static int[][] road = new int[][] {
+		{4,0},{4,1},{3,1},{2,1},{1,1},{0,1},{0,2},{0,3},{1,3},
+		{2,3},{3,3},{4,3},{4,4},{4,5},{3,5},{2,5},{1,5},{0,5},
+		{0,6},{0,7},{0,8},{0,9},{1,9},{2,9},{3,9},{3,8},{3,7},
+		{4,7},{4,8},{4,9},{4,9}
+	};
 	static ArrayList<Enemy> enemylist = new ArrayList<Enemy>();
 	static ArrayList<Bullet> bulletlist = new ArrayList<Bullet>();
 	static Tower towerlist[][] = new Tower[10][15]; //포탑 저장공간
@@ -31,7 +36,8 @@ public class Board {
 	Thread Thread_GUIEnemy = new Thread(new GUIEnemy()); //Enemy의 정보를 GUI에 반영
 	Thread Thread_GUIBullet = new Thread(new GUIBullet()); //Bullet의 정보를 GUI에 반영
 	Thread Thread_GetSignal = new Thread(new GetSignal()); //시그널을 받아옵니다.
-	Thread Thread_PhaseChecker = new Thread(new PhaseChecker());
+	Thread Thread_PhaseChecker = new Thread(new PhaseChecker()); //Phase를 Check합니다.
+	
 	Board() {
 		for(int i=0; i<5; i++) {
 			for(int j=0; j<10; j++) {
@@ -46,8 +52,14 @@ public class Board {
 		}
 		Thread_GetSignal.start();
 	}
-	void Init() {
-		
+	void ReArrange() {
+		for(int i=0; i<15; i++) {
+			Enemy temp = Board.enemylist.get(i);
+			temp.visible = false;
+		}
+		for(int i=0; i<5; i++) {
+			
+		}
 	}
 	void game_start() {
 		Thread_PhaseChecker.start();
@@ -85,7 +97,7 @@ public class Board {
 				System.out.println("Battle Finished");
 				System.out.println("Prepare for the next battle");
 				Interrupt_Object();
-				Init();
+				ReArrange();
 			} catch(InterruptedException e) {
 				
 			}
