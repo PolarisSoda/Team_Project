@@ -79,9 +79,18 @@ class Tower extends GameObject {
 		this.y = y;
 		this.visible = false;
 	}
-	//랜덤은 나중에 생각할 문제
-	//지금은 무조건 앞에 있는걸 때림
-	boolean SetTarget() {
+	void setTier(int tier) {
+		if(tier == 1) {
+			//Common
+		} else if(tier == 2) {
+			//Rare
+		} else if(tier == 3) {
+			//Epic
+		} else {
+			//Legendary
+		}
+	}
+ 	boolean SetTarget() {
 		this.target = -1;
 		for(int i=0; i<15; i++) {
 			if(Board.enemylist.get(i).visible == true) {
@@ -108,7 +117,7 @@ class Tower extends GameObject {
 			int oy = Board.enemylist.get(this.target).y;
 			double rad = Math.atan2((double)(this.y-oy)+bias,(double)(this.x-ox)+bias);
 			this.radian = rad;
-			for(int i=0; i<1000; i++) {
+			for(int i=0; i<500; i++) {
 				Bullet temp = Board.bulletlist.get(i);
 				if(temp.visible == true)
 					continue;

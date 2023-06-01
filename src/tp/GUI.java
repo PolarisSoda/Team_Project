@@ -34,6 +34,7 @@ class Frame extends JFrame {
 				tgui[j][i].setSize(100,100);
 				tgui[j][i].setLocation(j*100,i*100);
 				tgui[j][i].setVisible(false);
+				tgui[j][i].setDoubleBuffered(true);
 				Gamepanel.add(tgui[j][i]);
 			}
 		}
@@ -44,18 +45,17 @@ class Frame extends JFrame {
 			egui[i].setSize(100,100);
 			egui[i].setLocation(0,400);
 			egui[i].setVisible(false);
+			egui[i].setDoubleBuffered(true);
 			Gamepanel.add(egui[i]);
 		}
 		
-		for(int i=0; i<1000; i++) {
-			ImageIcon original = new ImageIcon("src/images/bullet.png");
-			Image img = original.getImage();
-			Image changeImg = img.getScaledInstance(40,40,Image.SCALE_SMOOTH);
-			ImageIcon newer = new ImageIcon(changeImg);
-			bgui[i] = new JLabel(newer);
-			bgui[i].setSize(40,40);
+		for(int i=0; i<500; i++) {
+			ImageIcon original = new ImageIcon("src/images/new_bullet.png");
+			bgui[i] = new JLabel(original);
+			bgui[i].setSize(100,100);
 			bgui[i].setLocation(-100,-100);
 			bgui[i].setVisible(false);
+			bgui[i].setDoubleBuffered(true);
 			Gamepanel.add(bgui[i]);
 		}
 	}
@@ -134,13 +134,34 @@ class Frame extends JFrame {
 				ErrorMsg.setText("Not Enought Gold!");
 				return ;
 			}
+			if(Board.TowerRandom.size() == 0) {
+				ErrorMsg.setText("No More Space For Tower!");
+				return ;
+			}
 			Board.gold -= 10;
 			GoldMsg.setText("Gold : " + String.valueOf(Board.gold));
 			Random rd = new Random();
-			
-			int x = rd.nextInt(10);
-			int y = rd.nextInt(5);
+			int indicator = rd.nextInt(Board.TowerRandom.size());
+			int x = Board.TowerRandom.get(indicator).first;
+			int y = Board.TowerRandom.get(indicator).second;
+			Board.TowerRandom.remove(indicator);
+			int grade = rd.nextInt(100)+1;
+			int tier = 1;
+			if(grade <= 70) {
+				tier = 1;
+			} else if(grade <= 95) {
+				tier = 2;
+			} else if(grade <= 99) {
+				tier = 3;
+			} else if(grade == 100) {
+				tier = 4;
+			}
+			String first = "src/images/new_tank_";
+			String second = ".png";
+			String tankimage = first + String.valueOf(tier) + second;
 			tgui[x][y].setVisible(true);
+			tgui[x][y].image = new ImageIcon(tankimage).getImage();
+			Board.towerlist[x][y].setTier(tier);
 			Board.towerlist[x][y].visible = true;
 			
 		}
