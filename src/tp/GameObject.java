@@ -70,7 +70,7 @@ class Bullet extends GameObject {
 }
 class Tower extends GameObject {
 	int atk = 50;//체력은 얼마나 깎을건지?
-	int reload = 50; //몇 Cycle마다 한번 쏘는지?
+	int reload = 40; //몇 Cycle마다 한번 쏘는지?
 	int target = -1; //ArrayList의 몇번째 Enemy를 쏠건지?
 	double radian;
 	int cnt = 1;
@@ -84,10 +84,16 @@ class Tower extends GameObject {
 			//Common
 		} else if(tier == 2) {
 			//Rare
+			this.atk = 100;
+			this.reload = 20;
 		} else if(tier == 3) {
 			//Epic
+			this.atk = 150;
+			this.reload = 10;
 		} else {
 			//Legendary
+			this.atk = 200;
+			this.reload = 5;
 		}
 	}
  	boolean SetTarget() {
