@@ -36,7 +36,6 @@ public class Board {
 	Thread Thread_RunBullet = new Thread(new RunBullet()); //이동, Hit여부 체크 등등
 	Thread Thread_GUITower = new Thread(new GUITower()); //Tower의 정보를 GUI에 반영
 	Thread Thread_GUIEnemy = new Thread(new GUIEnemy()); //Enemy의 정보를 GUI에 반영
-	//GUIEnemy temp = new GUIEnemy();
 	Thread Thread_GUIBullet = new Thread(new GUIBullet()); //Bullet의 정보를 GUI에 반영
 	Thread Thread_GetSignal = new Thread(new GetSignal()); //시그널을 받아옵니다.
 	Thread Thread_PhaseChecker = new Thread(new PhaseChecker()); //Phase를 Check합니다.
@@ -66,18 +65,42 @@ public class Board {
 		}
 		Thread_GetSignal.start();
 	}
+	
 	void ReArrange() {
-		for(int i=0; i<15; i++) {
-			Enemy temp = Board.enemylist.get(i);
+		Board.round++;
+		for(Bullet temp : Board.bulletlist) {
 			temp.visible = false;
 		}
-		for(int i=0; i<5; i++) {
-			
+		for(Enemy temp : Board.enemylist) {
+			temp.x = 0;
+			temp.y = 400;
+			temp.index = 0;
+			temp.visible = false;
+			temp.health = 1000 + Board.round*100;
 		}
+		for(JRotate temp : frame.bgui) {
+			temp.setVisible(false);
+		}
+		for(JLabel temp : frame.egui) {
+			temp.setLocation(0,400);
+		}
+		Board.EnemyExist = 0;
+		Board.EnemyRemained = 15;
+		Board.start_phase = false;
 	}
 	void game_start() {
-		Thread_PhaseChecker.start();
+		Thread_GetSignal.interrupt();
 		
+		Thread_PhaseChecker = new Thread(new PhaseChecker());
+		Thread_Summon = new Thread(new SummonSchedular());
+		Thread_RunTower = new Thread(new RunTower());
+		Thread_RunEnemy = new Thread(new RunEnemy());
+		Thread_RunBullet = new Thread(new RunBullet());
+		Thread_GUITower = new Thread(new GUITower());
+		Thread_GUIEnemy = new Thread(new GUIEnemy());
+		Thread_GUIBullet = new Thread(new GUIBullet());
+		
+		Thread_PhaseChecker.start();
 		Thread_Summon.start();
 		
 		Thread_RunTower.start();
@@ -85,35 +108,36 @@ public class Board {
 		Thread_RunBullet.start();
 		
 		Thread_GUITower.start();
-		//temp.execute();
 		Thread_GUIEnemy.start();
 		Thread_GUIBullet.start();
-		
  	}
 	void Interrupt_Object() {
+		this.ReArrange();
+		Thread_PhaseChecker.interrupt();
 		Thread_RunTower.interrupt();
 		Thread_RunEnemy.interrupt();
 		Thread_RunBullet.interrupt();
-		
+		Thread_Summon.interrupt();
 		Thread_GUITower.interrupt();
-		//temp.cancel(true);
 		Thread_GUIEnemy.interrupt();
 		Thread_GUIBullet.interrupt();
 		
+		Thread_GetSignal = new Thread(new GetSignal());
 		Thread_GetSignal.start();
 	}
+	
 	class PhaseChecker implements Runnable {
 		public void run() {
 			try {
 				while(Thread.interrupted() == false) {
-					if(Board.EnemyExist == 0 && Board.EnemyRemained == 0)
+					if(Board.EnemyExist == 0 && Board.EnemyRemained == 0) //만약 생성할 적군도 없고, 적군 남아있지도 않다면.
 						break;
 					Thread.sleep(5);
 				}
 				System.out.println("Battle Finished");
 				System.out.println("Prepare for the next battle");
+				Board.start_phase = false;
 				Interrupt_Object();
-				ReArrange();
 			} catch(InterruptedException e) {
 				
 			}
@@ -129,7 +153,10 @@ public class Board {
 				}
 				System.out.println("Battle Start!");
 				game_start();
-			} catch(InterruptedException e) {}
+				return ;
+			} catch(InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
 		}
 	}
 	class SummonSchedular implements Runnable {
@@ -139,10 +166,12 @@ public class Board {
 					Board.enemylist.get(i).visible = true;
 					Board.EnemyRemained--;
 					Board.EnemyExist++;
-					Thread.sleep(2000);
+					Thread.sleep(1000);
 				}
 				System.out.println("Summon Finished");
-			} catch(InterruptedException e) {}
+			} catch(InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
 		}
 	} 
 	class RunTower implements Runnable {
@@ -157,17 +186,16 @@ public class Board {
 							temp.Shoot();
 						}
 					}
-					Thread.sleep(40);
+					Thread.sleep(30);
 				}
 			} catch(InterruptedException e) {
-				
+				Thread.currentThread().interrupt();
 			}
 		}
 	}
 	
 	class RunEnemy implements Runnable {
 		public void run() {
-			System.out.println("RunEnemy_Thread Started");
 			try {
 				while(Thread.interrupted() == false) {
 					for(int i=0; i<15; i++) {
@@ -176,10 +204,13 @@ public class Board {
 							continue;
 						temp.move();
 					}
-					Thread.sleep(40);
+					Thread.sleep(30);
 				}
 				System.out.println("RunEnemy_Thread Interrupted");
-			} catch(InterruptedException e) {}
+			} catch(InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
+			
 		}
 	}
 	
@@ -191,16 +222,28 @@ public class Board {
 						Bullet temp = Board.bulletlist.get(i);
 						if(temp.visible == false)
 							continue;
-						if(temp.isHit() == true) {
+						int t = temp.isHit();
+						if(t != -1) {
 							temp.visible = false;
-						} else {
-							temp.move();
+							Enemy tg = Board.enemylist.get(t);
+							tg.Hit(temp.atk);
+							if(tg.health == 0) {
+								Board.EnemyExist--;
+								Board.gold += 10;
+								frame.GoldMsg.setText("Gold : " + String.valueOf(Board.gold));
+							}
+							continue;
 						}
+						if(temp.OutOfRange() == true) {
+							temp.visible = false;
+							continue;
+						}
+						temp.move();
 					}
-					Thread.sleep(40);
+					Thread.sleep(30);
 				}
 			} catch(InterruptedException e) {
-				
+				Thread.currentThread().interrupt();
 			}
 		}
 	}
@@ -216,10 +259,10 @@ public class Board {
 							frame.tgui[j][i].Radian = temp.radian;
 						}
 					}
-					Thread.sleep(20);
+					Thread.sleep(10);
 				}
 			} catch(InterruptedException e) {
-				
+				Thread.currentThread().interrupt();
 			}
 		}
 	}
@@ -238,9 +281,10 @@ public class Board {
 							frame.egui[i].setLocation(temp.x,temp.y);
 						}
 					}
-					Thread.sleep(20);
+					Thread.sleep(10);
 				}
 			} catch(InterruptedException e) {
+				Thread.currentThread().interrupt();
 			}
 		}
 	}
@@ -257,15 +301,23 @@ public class Board {
 							if(frame.bgui[i].isVisible() == false)
 								frame.bgui[i].setVisible(true);
 							frame.bgui[i].setLocation(temp.x,temp.y);
+							frame.bgui[i].Radian = temp.direction;
 						}
 					}
-					Thread.sleep(20);
+					Thread.sleep(10);
 				}
 			} catch(InterruptedException e) {
-				
+				Thread.currentThread().interrupt();
 			}
 		}
 	}
-	
-	
+}
+
+class pair {
+	int first;
+	int second;
+	pair(int first,int second) {
+		this.first = first;
+		this.second = second;
+	}
 }

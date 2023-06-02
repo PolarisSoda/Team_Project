@@ -10,16 +10,16 @@ class GameObject {
 }
 
 class Enemy extends GameObject {
-	int velocity = 2;
+	int velocity = 4;
 	int health;
 	int index = 0;
-	int size = 90;
+	int size = 100;
 	int dx = (1000 - size)/9;
 	int dy = (500 - size)/4;
 	Enemy() {
 		this.health = 1000;
-		this.x = 5;
-		this.y = 405;
+		this.x = 0;
+		this.y = 400;
 		this.visible = false;
 	}
 	void move() {
@@ -28,11 +28,12 @@ class Enemy extends GameObject {
 			this.y = Board.road[0][0] * dy;
 			index = 1;
 		}
-		if(this.x == Board.road[this.index][1]*dx && this.y == Board.road[this.index][0]*dy) {
+		if(this.x == Board.road[this.index][1]*dx && this.y == Board.road[this.index][0]*dy ) {
 			this.index +=1;
 		}
 		this.x += (Board.road[this.index][1] - Board.road[this.index-1][1]) * this.velocity;
 		this.y += (Board.road[this.index][0] - Board.road[this.index-1][0]) * this.velocity;
+		
 	}
 	void Hit(int atk) {
 		this.health -= atk;
@@ -45,27 +46,40 @@ class Enemy extends GameObject {
 
 class Bullet extends GameObject {
 	int velocity;
+	int dx,dy;
+	int atk;
 	double direction; //rad형태로 바뀌겠죠.
+	
 	Bullet() {
 		this.visible = false;
-		this.velocity = 10;
+		this.velocity = 20;
+	}
+	void Init() {
+		this.dx = (int)(this.velocity * Math.cos(this.direction));
+		this.dy = (int)(this.velocity * Math.sin(this.direction));
 	}
 	void move() {
-		this.x += velocity;
+		this.x -= this.dx;
+		this.y -= this.dy;
 	}
-	boolean isHit() {
-		if(x<0 || x>1000 || y<0 || y>500)
+	boolean OutOfRange() {
+		int cx = this.x+50;
+		int cy = this.y+50;
+		if(cx<0 || cx>1000 || cy<0 || cy>500)
 			return true;
+		return false;
+	}
+	int isHit() {
 		for(int i=0; i<15; i++) {
 			Enemy target = Board.enemylist.get(i);
 			if(target.visible == true) {
 				int x2 = (target.x - this.x)*(target.x - this.x);
 				int y2 = (target.y - this.y)*(target.y - this.y);
 				if(x2 + y2 <= 1600)
-					return true;
+					return i;
 			}
 		}
-		return false;
+		return -1;
 	}
 }
 class Tower extends GameObject {
@@ -92,19 +106,27 @@ class Tower extends GameObject {
 			this.reload = 10;
 		} else {
 			//Legendary
-			this.atk = 200;
-			this.reload = 5;
+			this.atk = 300;
+			this.reload = 3;
 		}
 	}
  	boolean SetTarget() {
 		this.target = -1;
+		Random rd = new Random();
+		for(int i=0; i<20; i++) {
+			int rt = rd.nextInt(15);
+			if(Board.enemylist.get(rt).visible == true) {
+				this.target = rt;
+				return true;
+			}
+		} //랜덤으로 먼저 찾는다.
 		for(int i=0; i<15; i++) {
 			if(Board.enemylist.get(i).visible == true) {
 				this.target = i;
 				return true;
 			}
-		}
-		return false;
+		} //랜덤으로도 못찾았거나 1/15의 확률을 그지같이 못뚫는다면, 순서대로 찾는다.
+		return false; //못찼았으면 어쩔수 없죠.
 	}
 	boolean Is_Valid() {
 		if(Board.enemylist.get(this.target).visible == true)
@@ -112,7 +134,7 @@ class Tower extends GameObject {
 		return false;
 	}
 	void Shoot() {
-		if(cnt%reload == 0) {
+		if(this.cnt%reload == 0) {
 			if(this.target == -1 || Is_Valid() == false) {
 				boolean hastarget = this.SetTarget();
 				if(hastarget == false)
@@ -131,10 +153,12 @@ class Tower extends GameObject {
 				temp.visible = true;
 				temp.x = this.x;
 				temp.y = this.y;
+				temp.atk = this.atk;
 				temp.direction = rad;
+				temp.Init();
 				break;
 			}
-			cnt = 1;
+			this.cnt = 1;
 		} else {
 			this.cnt++;
 		}
