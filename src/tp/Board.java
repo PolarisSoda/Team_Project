@@ -10,12 +10,11 @@ public class Board {
 	Frame frame = new Frame(); //GUI
 	
 	static int upgrade = 0; //upgrade 계수 어떻게 할지는 글쎄
-	static int gold = 1000; //얻은 돈
+	static int gold = 100; //얻은 돈
 	static int round = 0; //라운드, 라운드 기반으로 적이 강해지겠죠
 	static int EnemyRemained = 15; //적은 총 15개만 나오는걸로해보죠..
 	static int EnemyExist = 0; //화면에 적 존재 여부.
 	static boolean start_phase = false; //전투페이즈 준비페이즈 구분.
-	
 	static int[][] road = new int[][] {
 		{4,0},{4,1},{3,1},{2,1},{1,1},{0,1},{0,2},{0,3},{1,3},
 		{2,3},{3,3},{4,3},{4,4},{4,5},{3,5},{2,5},{1,5},{0,5},
@@ -27,7 +26,7 @@ public class Board {
 	static ArrayList<pair> TowerRandom = new ArrayList<pair>();
 	static Tower towerlist[][] = new Tower[10][15]; //포탑 저장공간
 	
-	
+	int life = 2000;
 	boolean game_over = false;
 	
 	Thread Thread_Summon = new Thread(new SummonSchedular()); //적을 시간에 따라 내보내는 스레드
@@ -78,15 +77,11 @@ public class Board {
 			temp.visible = false;
 			temp.health = 1000 + Board.round*100;
 		}
-		for(JRotate temp : frame.bgui) {
-			temp.setVisible(false);
-		}
-		for(JLabel temp : frame.egui) {
-			temp.setLocation(0,400);
-		}
 		Board.EnemyExist = 0;
 		Board.EnemyRemained = 15;
 		Board.start_phase = false;
+		frame.ObjectHide();
+		frame.RoundUpdate();
 	}
 	void game_start() {
 		Thread_GetSignal.interrupt();
@@ -126,13 +121,32 @@ public class Board {
 		Thread_GetSignal.start();
 	}
 	
+	void OverProcedure() {
+		Thread_PhaseChecker.interrupt();
+		Thread_RunTower.interrupt();
+		Thread_RunEnemy.interrupt();
+		Thread_RunBullet.interrupt();
+		Thread_Summon.interrupt();
+		Thread_GUITower.interrupt();
+		Thread_GUIEnemy.interrupt();
+		Thread_GUIBullet.interrupt();
+		frame.Over();
+	}
 	class PhaseChecker implements Runnable {
 		public void run() {
 			try {
 				while(Thread.interrupted() == false) {
 					if(Board.EnemyExist == 0 && Board.EnemyRemained == 0) //만약 생성할 적군도 없고, 적군 남아있지도 않다면.
 						break;
+					if(life <= 0) {
+						game_over = true;
+						break;
+					}
 					Thread.sleep(5);
+				}
+				if(game_over == true) {
+					OverProcedure();
+					return;
 				}
 				System.out.println("Battle Finished");
 				System.out.println("Prepare for the next battle");
@@ -151,7 +165,6 @@ public class Board {
 						break;
 					Thread.sleep(5);
 				}
-				System.out.println("Battle Start!");
 				game_start();
 				return ;
 			} catch(InterruptedException e) {
@@ -168,7 +181,6 @@ public class Board {
 					Board.EnemyExist++;
 					Thread.sleep(1000);
 				}
-				System.out.println("Summon Finished");
 			} catch(InterruptedException e) {
 				Thread.currentThread().interrupt();
 			}
@@ -202,11 +214,18 @@ public class Board {
 						Enemy temp = Board.enemylist.get(i);
 						if(temp.visible == false)
 							continue;
+						if(temp.MainAttack() == true) {
+							Board.EnemyExist--;
+							temp.visible = false;
+							life -= temp.health;
+							if(life <= 0)
+								life = 0;
+							frame.LifeUpdate(life);
+						}
 						temp.move();
 					}
 					Thread.sleep(30);
 				}
-				System.out.println("RunEnemy_Thread Interrupted");
 			} catch(InterruptedException e) {
 				Thread.currentThread().interrupt();
 			}
@@ -226,7 +245,7 @@ public class Board {
 						if(t != -1) {
 							temp.visible = false;
 							Enemy tg = Board.enemylist.get(t);
-							tg.Hit(temp.atk);
+							tg.Hit(temp.atk + Board.upgrade * 5);
 							if(tg.health == 0) {
 								Board.EnemyExist--;
 								Board.gold += 10;
@@ -240,7 +259,7 @@ public class Board {
 						}
 						temp.move();
 					}
-					Thread.sleep(30);
+					Thread.sleep(15);
 				}
 			} catch(InterruptedException e) {
 				Thread.currentThread().interrupt();
@@ -259,7 +278,7 @@ public class Board {
 							frame.tgui[j][i].Radian = temp.radian;
 						}
 					}
-					Thread.sleep(10);
+					Thread.sleep(5);
 				}
 			} catch(InterruptedException e) {
 				Thread.currentThread().interrupt();
@@ -281,7 +300,7 @@ public class Board {
 							frame.egui[i].setLocation(temp.x,temp.y);
 						}
 					}
-					Thread.sleep(10);
+					Thread.sleep(5);
 				}
 			} catch(InterruptedException e) {
 				Thread.currentThread().interrupt();
@@ -304,7 +323,7 @@ public class Board {
 							frame.bgui[i].Radian = temp.direction;
 						}
 					}
-					Thread.sleep(10);
+					Thread.sleep(5);
 				}
 			} catch(InterruptedException e) {
 				Thread.currentThread().interrupt();

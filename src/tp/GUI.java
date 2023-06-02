@@ -12,6 +12,7 @@ class Frame extends JFrame {
 	JLabel FirstDisplay = new JLabel(new ImageIcon("src/images/background.jpg"));
 	JLabel Title = new JLabel("Random TD");
 	JButton Start = new JButton("Game Start");
+	JLabel Info = new JLabel();
 	JLabel OverDisplay = new JLabel();
 	
 	JPanel Gamepanel = new JPanel(); //게임 패널
@@ -32,16 +33,46 @@ class Frame extends JFrame {
 	JLabel GoldMsg = new JLabel(); //돈 표시기
 	JLabel ErrorMsg = new JLabel(); //에러 메시지
 	JLabel UpgradeMsg = new JLabel(); //업그레이드 표시기
+	JLabel LifeMsg = new JLabel(); //라이프 메시지
+	JLabel EnemyInfo = new JLabel();
 	
 	JPanel Msgpanel = new JPanel(); //??
 	JLabel MSGImage = new JLabel();
 	JLabel indicator[] = new JLabel[4];
 	JLabel randomlist[] = new JLabel[4];
 	
+	JPanel Etcpanel = new JPanel();
+	JLabel EtcImage = new JLabel(new ImageIcon("src/images/etcpanel.png"));
+	
+	void LifeUpdate(int life) {
+		this.LifeMsg.setText("Life: " + String.valueOf(life));
+	}
+	void ObjectHide() {
+		for(JRotate temp : this.bgui) {
+			temp.setVisible(false);
+		}
+		for(JLabel temp : this.egui) {
+			temp.setLocation(0,400);
+		}
+	}
+	void RoundUpdate() {
+		this.RoundMsg.setText("Round: " + String.valueOf(Board.round));
+		this.EnemyInfo.setText("Enemy: " + String.valueOf(1000+Board.round*100) + "HP");
+	}
+	void Over() {
+		this.Info.setText("You Did " + String.valueOf(Board.round) + "Rounds");
+		this.Info.setVisible(true);
+		this.Title.setText("Game Over!");
+		this.Coverpanel.setVisible(true);
+		this.Start.setVisible(false);
+		this.Controlpanel.setVisible(false);
+	}
 	void Init() {
 		for(int i=0; i<5; i++) {
 			for(int j=0; j<10; j++) {
 				tgui[j][i] = new JRotate("src/images/new_tank_4.png",0);
+				if(j == 9 && i == 4)
+					tgui[j][i] = new JRotate("src/images/main_t.png",0);
 				tgui[j][i].setSize(100,100);
 				tgui[j][i].setLocation(j*100,i*100);
 				tgui[j][i].setVisible(false);
@@ -49,6 +80,7 @@ class Frame extends JFrame {
 				Gamepanel.add(tgui[j][i]);
 			}
 		}
+		tgui[9][4].setVisible(true);
 		for(int i=0; i<15; i++) {
 			ImageIcon original = new ImageIcon("src/images/new_enemy.png");
 			egui[i] = new JLabel(original);
@@ -89,12 +121,21 @@ class Frame extends JFrame {
 		Title.setSize(500,100);
 		Title.setHorizontalAlignment(SwingConstants.CENTER);
 		
+		Info.setFont(new Font("Impact",Font.BOLD,60));
+		Info.setForeground(Color.WHITE);
+		Info.setLocation(380,290);
+		Info.setSize(500,200);
+		Info.setHorizontalAlignment(SwingConstants.CENTER);
+		Info.setVisible(false);
+		
 		Coverpanel.setLayout(null);
 		Coverpanel.setLocation(0,0);
 		Coverpanel.setSize(1280,720);
 		Coverpanel.add(Title);
+		Coverpanel.add(Info);
 		Coverpanel.add(FirstDisplay);
 		Coverpanel.add(Start);
+		
 		
 		ImageIcon temp = new ImageIcon("src/images/road.png");
 		Image img = temp.getImage();  //ImageIcon을 Image로 변환.
@@ -147,9 +188,30 @@ class Frame extends JFrame {
 		ErrorMsg.setLocation(10,10);
 		ErrorMsg.setSize(150,30);
 		
-		GoldMsg.setLocation(10,50);
+		GoldMsg.setLocation(20,20);
 		GoldMsg.setSize(150,30);
 		GoldMsg.setText("Gold : " + String.valueOf(Board.gold));
+		GoldMsg.setFont(new Font("Impact",Font.PLAIN,20));
+		
+		UpgradeMsg.setLocation(20,70);
+		UpgradeMsg.setSize(150,30);
+		UpgradeMsg.setText("Upgrade: 0");
+		UpgradeMsg.setFont(new Font("Impact",Font.PLAIN,20));
+		
+		LifeMsg.setLocation(20,120);
+		LifeMsg.setSize(150,30);
+		LifeMsg.setText("Life: 2000");
+		LifeMsg.setFont(new Font("Impact",Font.PLAIN,20));
+		
+		EnemyInfo.setLocation(20,170);
+		EnemyInfo.setSize(150,30);
+		EnemyInfo.setText("Enemy: 1000HP");
+		EnemyInfo.setFont(new Font("Impact",Font.PLAIN,20));
+		
+		RoundMsg.setLocation(20,220);
+		RoundMsg.setSize(150,30);
+		RoundMsg.setText("Round: 0");
+		RoundMsg.setFont(new Font("Impact",Font.PLAIN,20));
 		
 		Infopanel.setLayout(null);
 		Infopanel.setBackground(new Color(180,200,200,255));
@@ -157,6 +219,10 @@ class Frame extends JFrame {
 		Infopanel.setSize(230,260);
 		Infopanel.add(ErrorMsg);
 		Infopanel.add(GoldMsg);
+		Infopanel.add(UpgradeMsg);
+		Infopanel.add(LifeMsg);
+		Infopanel.add(RoundMsg);
+		Infopanel.add(EnemyInfo);
 		Infopanel.add(IPImage);
 		
 		for(int i=0; i<4; i++) {
@@ -190,17 +256,26 @@ class Frame extends JFrame {
 		Msgpanel.setLocation(10,520);
 		Msgpanel.setSize(860,120);
 		
+		EtcImage.setLocation(0,0);
+		EtcImage.setSize(370,120);
+		Etcpanel.add(EtcImage);
+		Etcpanel.setLayout(null);
+		Etcpanel.setLocation(880,520);
+		Etcpanel.setSize(370,120);
+		Etcpanel.setBackground(Color.GREEN);
 		
 		contentPane.add(Coverpanel);
 		contentPane.add(Gamepanel);
 		contentPane.add(Controlpanel);
 		contentPane.add(Infopanel);
 		contentPane.add(Msgpanel);
+		contentPane.add(Etcpanel);
 		Coverpanel.setVisible(true);
 		Gamepanel.setVisible(true);
 		Controlpanel.setVisible(true);
 		Infopanel.setVisible(true);
 		Msgpanel.setVisible(true);
+		Etcpanel.setVisible(true);
 		
 		
 		this.setVisible(true);
@@ -253,6 +328,7 @@ class Frame extends JFrame {
 				Board.upgrade++;
 				Board.gold -= 70;
 				GoldMsg.setText("Gold : " + String.valueOf(Board.gold));
+				UpgradeMsg.setText("Upgrade: " + String.valueOf(Board.upgrade));
 			} else {
 				ErrorMsg.setText("Not Enough Gold");
 			}

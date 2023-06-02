@@ -42,6 +42,11 @@ class Enemy extends GameObject {
 			this.health = 0;
 		}
 	}
+	boolean MainAttack() {
+		if(this.index == 29)
+			return true;
+		return false;
+	}
 }
 
 class Bullet extends GameObject {
@@ -88,6 +93,10 @@ class Tower extends GameObject {
 	int target = -1; //ArrayList의 몇번째 Enemy를 쏠건지?
 	double radian;
 	int cnt = 1;
+	
+	Tower() {
+		
+	}
 	Tower(int x,int y) {
 		this.x = x;
 		this.y = y;
@@ -164,5 +173,4 @@ class Tower extends GameObject {
 		}
 	}
 }
-
 
