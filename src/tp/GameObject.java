@@ -57,7 +57,7 @@ class Bullet extends GameObject {
 	
 	Bullet() {
 		this.visible = false;
-		this.velocity = 20;
+		this.velocity = 30;
 	}
 	void Init() {
 		this.dx = (int)(this.velocity * Math.cos(this.direction));
@@ -88,15 +88,11 @@ class Bullet extends GameObject {
 	}
 }
 class Tower extends GameObject {
-	int atk = 50;//체력은 얼마나 깎을건지?
-	int reload = 40; //몇 Cycle마다 한번 쏘는지?
+	int atk = 100;//체력은 얼마나 깎을건지?
+	int reload = 30; //몇 Cycle마다 한번 쏘는지?
 	int target = -1; //ArrayList의 몇번째 Enemy를 쏠건지?
 	double radian;
 	int cnt = 1;
-	
-	Tower() {
-		
-	}
 	Tower(int x,int y) {
 		this.x = x;
 		this.y = y;
@@ -115,8 +111,8 @@ class Tower extends GameObject {
 			this.reload = 10;
 		} else {
 			//Legendary
-			this.atk = 300;
-			this.reload = 3;
+			this.atk = 200;
+			this.reload = 5;
 		}
 	}
  	boolean SetTarget() {
@@ -158,7 +154,6 @@ class Tower extends GameObject {
 				Bullet temp = Board.bulletlist.get(i);
 				if(temp.visible == true)
 					continue;
-				System.out.println("Bullet : " + i + "created");
 				temp.visible = true;
 				temp.x = this.x;
 				temp.y = this.y;

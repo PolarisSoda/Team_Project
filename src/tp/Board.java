@@ -67,6 +67,7 @@ public class Board {
 	
 	void ReArrange() {
 		Board.round++;
+		int new_health = 1000 + Board.round*Board.round*100/2;
 		for(Bullet temp : Board.bulletlist) {
 			temp.visible = false;
 		}
@@ -75,13 +76,13 @@ public class Board {
 			temp.y = 400;
 			temp.index = 0;
 			temp.visible = false;
-			temp.health = 1000 + Board.round*100;
+			temp.health = new_health;
 		}
 		Board.EnemyExist = 0;
 		Board.EnemyRemained = 15;
 		Board.start_phase = false;
 		frame.ObjectHide();
-		frame.RoundUpdate();
+		frame.RoundUpdate(Board.round,new_health);
 	}
 	void game_start() {
 		Thread_GetSignal.interrupt();
@@ -105,6 +106,7 @@ public class Board {
 		Thread_GUITower.start();
 		Thread_GUIEnemy.start();
 		Thread_GUIBullet.start();
+		frame.BS();
  	}
 	void Interrupt_Object() {
 		this.ReArrange();
@@ -117,8 +119,10 @@ public class Board {
 		Thread_GUIEnemy.interrupt();
 		Thread_GUIBullet.interrupt();
 		
+		frame.BE();
 		Thread_GetSignal = new Thread(new GetSignal());
 		Thread_GetSignal.start();
+		
 	}
 	
 	void OverProcedure() {
@@ -148,8 +152,6 @@ public class Board {
 					OverProcedure();
 					return;
 				}
-				System.out.println("Battle Finished");
-				System.out.println("Prepare for the next battle");
 				Board.start_phase = false;
 				Interrupt_Object();
 			} catch(InterruptedException e) {
@@ -245,7 +247,7 @@ public class Board {
 						if(t != -1) {
 							temp.visible = false;
 							Enemy tg = Board.enemylist.get(t);
-							tg.Hit(temp.atk + Board.upgrade * 5);
+							tg.Hit(temp.atk + Board.upgrade * 50);
 							if(tg.health == 0) {
 								Board.EnemyExist--;
 								Board.gold += 10;

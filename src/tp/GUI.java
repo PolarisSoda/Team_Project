@@ -11,9 +11,9 @@ class Frame extends JFrame {
 	JPanel Coverpanel = new JPanel();
 	JLabel FirstDisplay = new JLabel(new ImageIcon("src/images/background.jpg"));
 	JLabel Title = new JLabel("Random TD");
-	JButton Start = new JButton("Game Start");
 	JLabel Info = new JLabel();
 	JLabel OverDisplay = new JLabel();
+	JButton Start = new JButton("Game Start");
 	
 	JPanel Gamepanel = new JPanel(); //게임 패널
 	JLabel GImage = new JLabel(new ImageIcon("src/images/road.png"));
@@ -22,16 +22,15 @@ class Frame extends JFrame {
 	JRotate bgui[] = new JRotate[500]; //총알 표시 라벨
 	
 	JPanel Controlpanel = new JPanel(); //컨트롤 패널, 버튼 포함하는 곳.
+	JLabel CPImage = new JLabel(new ImageIcon("src/images/controlpanel.png"));
 	JButton Summon = new JButton("Summon"); //소환
 	JButton Upgrade = new JButton("Upgrade"); //업그레이드
 	JButton Battle = new JButton("Battle"); //페이즈시작(적 생성하겠단뜻)
-	JLabel CPImage = new JLabel(new ImageIcon("src/images/controlpanel.png"));
 	
 	JPanel Infopanel = new JPanel(); //인포 패널, gold든 목숨이든 에러메시지든 넣는 곳.
 	JLabel IPImage = new JLabel(new ImageIcon("src/images/infopanel.png"));
 	JLabel RoundMsg = new JLabel();
 	JLabel GoldMsg = new JLabel(); //돈 표시기
-	JLabel ErrorMsg = new JLabel(); //에러 메시지
 	JLabel UpgradeMsg = new JLabel(); //업그레이드 표시기
 	JLabel LifeMsg = new JLabel(); //라이프 메시지
 	JLabel EnemyInfo = new JLabel();
@@ -41,9 +40,20 @@ class Frame extends JFrame {
 	JLabel indicator[] = new JLabel[4];
 	JLabel randomlist[] = new JLabel[4];
 	
+	JButton Reroll = new JButton("<html>Reroll<br>Previous</br></html>");
 	JPanel Etcpanel = new JPanel();
 	JLabel EtcImage = new JLabel(new ImageIcon("src/images/etcpanel.png"));
+	JLabel ErrorMsg = new JLabel();
 	
+	int px = -1;
+	int py = -1;
+	
+	void BS() {
+		ErrorMsg.setText("Battle Started!");
+	}
+	void BE() {
+		ErrorMsg.setText("Battle Finished!");
+	}
 	void LifeUpdate(int life) {
 		this.LifeMsg.setText("Life: " + String.valueOf(life));
 	}
@@ -55,13 +65,14 @@ class Frame extends JFrame {
 			temp.setLocation(0,400);
 		}
 	}
-	void RoundUpdate() {
-		this.RoundMsg.setText("Round: " + String.valueOf(Board.round));
-		this.EnemyInfo.setText("Enemy: " + String.valueOf(1000+Board.round*100) + "HP");
+	void RoundUpdate(int round,int health) {
+		this.RoundMsg.setText("Round: " + String.valueOf(round));
+		this.EnemyInfo.setText("Enemy: " + String.valueOf(health) + "HP");
 	}
 	void Over() {
 		this.Info.setText("You Did " + String.valueOf(Board.round) + "Rounds");
 		this.Info.setVisible(true);
+		this.Reroll.setVisible(false);
 		this.Title.setText("Game Over!");
 		this.Coverpanel.setVisible(true);
 		this.Start.setVisible(false);
@@ -105,7 +116,6 @@ class Frame extends JFrame {
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.setResizable(false);
 		this.setSize(1280,720);
-		//this.setBackground(new Color(1,1,1,128));
 		this.setLayout(null);
 		Container contentPane = this.getContentPane();
 		
@@ -185,8 +195,7 @@ class Frame extends JFrame {
 		IPImage.setLocation(0,0);
 		IPImage.setSize(230,260);
 		
-		ErrorMsg.setLocation(10,10);
-		ErrorMsg.setSize(150,30);
+		
 		
 		GoldMsg.setLocation(20,20);
 		GoldMsg.setSize(150,30);
@@ -217,7 +226,6 @@ class Frame extends JFrame {
 		Infopanel.setBackground(new Color(180,200,200,255));
 		Infopanel.setLocation(1020,250);
 		Infopanel.setSize(230,260);
-		Infopanel.add(ErrorMsg);
 		Infopanel.add(GoldMsg);
 		Infopanel.add(UpgradeMsg);
 		Infopanel.add(LifeMsg);
@@ -256,13 +264,26 @@ class Frame extends JFrame {
 		Msgpanel.setLocation(10,520);
 		Msgpanel.setSize(860,120);
 		
+		Reroll.setLocation(10,10);
+		Reroll.setSize(100,100);
+		Reroll.setFont(new Font("Impact",Font.PLAIN,15));
+		Reroll.addActionListener(new RerollListener());
+		Reroll.setVisible(false);
 		EtcImage.setLocation(0,0);
 		EtcImage.setSize(370,120);
-		Etcpanel.add(EtcImage);
+		
+		ErrorMsg.setLocation(120,10);
+		ErrorMsg.setSize(250,100);
+		ErrorMsg.setFont(new Font("Impact",Font.PLAIN,19));
+		ErrorMsg.setVerticalAlignment(SwingConstants.CENTER);
+		
 		Etcpanel.setLayout(null);
 		Etcpanel.setLocation(880,520);
 		Etcpanel.setSize(370,120);
-		Etcpanel.setBackground(Color.GREEN);
+		Etcpanel.add(Reroll);
+		Etcpanel.add(ErrorMsg);
+		Etcpanel.add(EtcImage);
+		
 		
 		contentPane.add(Coverpanel);
 		contentPane.add(Gamepanel);
@@ -319,14 +340,16 @@ class Frame extends JFrame {
 			tgui[x][y].image = new ImageIcon(tankimage).getImage();
 			Board.towerlist[x][y].setTier(tier);
 			Board.towerlist[x][y].visible = true;
+			px = x;
+			py = y;
 			
 		}
 	}
 	class UpgradeListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-			if(Board.gold >= 70) {
+			if(Board.gold >= 150) {
 				Board.upgrade++;
-				Board.gold -= 70;
+				Board.gold -= 150;
 				GoldMsg.setText("Gold : " + String.valueOf(Board.gold));
 				UpgradeMsg.setText("Upgrade: " + String.valueOf(Board.upgrade));
 			} else {
@@ -350,7 +373,45 @@ class Frame extends JFrame {
 			Summon.setVisible(true);
 			Upgrade.setVisible(true);
 			Battle.setVisible(true);
-			System.out.println("Check for Invisibility");
+			Reroll.setVisible(true);
+		}
+	}
+	
+	class RerollListener implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			if(Board.start_phase == true) {
+				ErrorMsg.setText("You can't change while fight!");
+				return ;
+			}
+			if(px == -1 || py == -1) {
+				ErrorMsg.setText("No Tower");
+				return;
+			}
+			if(Board.gold < 20) {
+				ErrorMsg.setText("Not Enough Gold");
+				return;
+			}
+			Board.gold -= 20;
+			GoldMsg.setText("Gold : " + String.valueOf(Board.gold));
+			Random rd = new Random();
+			int grade = rd.nextInt(100)+1;
+			int tier = 1;
+			if(grade <= 65) {
+				tier = 1;
+			} else if(grade <= 90) {
+				tier = 2;
+			} else if(grade <= 99) {
+				tier = 3;
+			} else if(grade == 100) {
+				tier = 4;
+			}
+			ErrorMsg.setText("You Changed To " + tier + "tier Tower");
+			String first = "src/images/new_tank_";
+			String second = ".png";
+			String tankimage = first + String.valueOf(tier) + second;
+			tgui[px][py].image = new ImageIcon(tankimage).getImage();
+			tgui[px][py].repaint();
+			Board.towerlist[px][py].setTier(tier);
 		}
 	}
 }
