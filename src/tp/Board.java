@@ -14,6 +14,7 @@ public class Board {
 	static int round = 0; //라운드, 라운드 기반으로 적이 강해지겠죠
 	static int EnemyRemained = 15; //적은 총 15개만 나오는걸로해보죠..
 	static int EnemyExist = 0; //화면에 적 존재 여부.
+	static int UptradeCost = 100;
 	static boolean start_phase = false; //전투페이즈 준비페이즈 구분.
 	static int[][] road = new int[][] {
 		{4,0},{4,1},{3,1},{2,1},{1,1},{0,1},{0,2},{0,3},{1,3},

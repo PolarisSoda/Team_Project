@@ -347,9 +347,10 @@ class Frame extends JFrame {
 	}
 	class UpgradeListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-			if(Board.gold >= 150) {
+			if(Board.gold >= Board.UptradeCost) {
 				Board.upgrade++;
-				Board.gold -= 150;
+				Board.gold -= Board.UptradeCost;
+				Board.UptradeCost += 50;
 				GoldMsg.setText("Gold : " + String.valueOf(Board.gold));
 				UpgradeMsg.setText("Upgrade: " + String.valueOf(Board.upgrade));
 			} else {
